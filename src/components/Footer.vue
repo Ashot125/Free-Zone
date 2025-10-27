@@ -10,35 +10,34 @@
         </router-link>
       </div>
 
-      <!--Link columns -->
+      <!-- Link columns -->
       <div class="footer-columns">
         <div class="footer-column">
-          <a href="#">About Us</a>
-          <router-link to="/become-partner" class="footer-link">Become a partner</router-link>
-
-          <a href="#">Delivery & Payment</a>
+          <router-link to="/about" class="nav-link">{{ t('footer.about') }}</router-link>
+          <router-link to="/become-partner" class="footer-link">{{ t('footer.partner') }}</router-link>
+          <router-link to="/delivery-payment">{{ t('footer.delivery') }}</router-link>
         </div>
         <div class="footer-column">
-          <a href="#">Become a Courier</a>
-          <a href="#">Contact</a>
+          <router-link to="/become-courier" class="footer-link">{{ t('footer.courier') }}</router-link>
+          <router-link to="/contact">{{ t('footer.contact') }}</router-link>
         </div>
         <div class="footer-column">
-          <a href="#">Customer Support</a>
-          <p>📞 +374 00 000 000</p>
+          <p>{{ t('footer.support') }}</p>
+          <p>📞 +374 93 24 72 44</p>
         </div>
       </div>
 
-      <!--Applications -->
+      <!-- Applications -->
       <div class="footer-apps">
         <a href="#"><img src="/google-play.svg" alt="Google Play" /></a>
         <a href="#"><img src="/app-store.svg" alt="App Store" /></a>
       </div>
     </div>
 
-    <!--Bottom part -->
+    <!-- Bottom part -->
     <div class="footer-bottom">
       <div class="footer-left">
-        <p>© 2020 - 2025 Free Zone. All rights reserved.</p>
+        <p>{{ t('footer.rights') }}</p>
       </div>
       <div class="footer-right footer-social">
         <a href="#"><img src="/facebook.svg" alt="Facebook" /></a>
@@ -49,24 +48,30 @@
   </footer>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+</script>
+
+
 
 <style scoped>
 .footer {
   background: #f5f5f5;
   color: #333;
-  padding: 8px 15px;   /* smaller padding */
+  padding: 4px 8px;   /*reduced indents */
   font-family: Arial, sans-serif;
-  font-size: 13px;
+  font-size: 11px;    /* smaller font */
 }
 
 .footer-top {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* key alignment */
+  align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 5px;
+  gap: 5px;           /*smaller gap */
+  margin-bottom: 3px;
 }
 
 .footer-logo .logo {
@@ -77,64 +82,35 @@
 }
 
 .logo-top {
-  font-size: 16px;
+  font-size: 19px;    /* smaller font */
   font-family: 'Pacifico', cursive;
   transform: rotate(-10deg);
 }
 
 .logo-bottom {
-  font-size: 12px;
+  font-size: 10px;    /* smaller font */
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .footer-columns {
   display: flex;
-  gap: 15px;
+  gap: 80px;          /* less gap between columns */
   flex-wrap: wrap;
-  align-items: center; /* align center */
+  align-items: center;
 }
 
 .footer-column {
   display: flex;
   flex-direction: column;
-  gap: 2px; /* minimal gap */
+  gap: 4px;           /* minimum intervals */
   margin: 0;
-}
-
-.footer-apps {
-  display: flex;
-  flex-direction: row; /* horizontal now, not column */
-  gap: 8px;
-  align-items: center;
-}
-
-.footer-bottom {
-  border-top: 1px solid #ddd;
-  padding-top: 5px;   /* smaller padding */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  font-size: 12px;
-}
-
-.footer-columns {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.footer-column {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
 }
 
 .footer-column a {
   color: #555;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 9px;     /* smaller font */
 }
 
 .footer-column a:hover {
@@ -143,37 +119,38 @@
 
 .footer-column p {
   margin: 0;
-  font-size: 12px;
+  font-size: 10px;    /* smaller font */
 }
 
 .footer-apps {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: flex-start;
+  flex-direction: row; /* horizontally */
+  gap: 5px;            /* distance between icons */
+  align-items: center;
 }
 
 .footer-apps img {
-  width: 70px;
+  width: 70px;   /* the same width*/
+  height: 60px;  /*the same height */
+  object-fit: contain; /* maintaining proportions within a square */
 }
 
-/* Footer bottom */
+
 .footer-bottom {
   border-top: 1px solid #ddd;
-  padding-top: 5px;
+  padding-top: 3px;   /*  smaller padding */
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 12px;
+  font-size: 10px;    /* smaller font */
+  gap: 3px;
 }
 
-/* Social icons */
 .footer-social img {
-  width: 20px;   /* reduced size */
-  height: 20px;  /* fixed height for proportions */
-  object-fit: contain;
-  margin-left: 8px;
+  width: 16px;        /*fewer social icons */
+  height: 16px;
+  margin-left: 6px;
 }
 
 /* Responsive design */
@@ -181,26 +158,26 @@
   .footer-top {
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 5px;
   }
 
   .footer-columns {
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
   }
 
   .footer-apps {
-    flex-direction: row;
-    gap: 10px;
     justify-content: center;
+    gap: 6px;
   }
 
   .footer-bottom {
     flex-direction: column;
-    gap: 5px;
+    gap: 3px;
     text-align: center;
   }
 }
+
 </style>
 

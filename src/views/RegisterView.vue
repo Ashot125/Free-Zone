@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-
+import { register } from '@/firebase.js'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+// Form
 const form = ref({
   firstName: '',
   lastName: '',
@@ -11,7 +14,22 @@ const form = ref({
   confirmPassword: '',
   confirmCode: '',
   agree: false,
-});
+})
+
+// Firebase registration
+const handleRegister = async () => {
+  try {
+    const user = await register(
+      form.value.email,
+      form.value.password,
+      form.value.firstName + ' ' + form.value.lastName
+    );
+    console.log("✅ User registered:", user.uid);
+  } catch (error:any) {
+    console.error("❌ Firebase error:", error.message);
+  }
+}
+
 
 const showPassword = ref(false);
 const showConfirmPassword = ref(false);
@@ -62,14 +80,22 @@ const validateForm = () => {
   return Object.keys(errors.value).length === 0;
 };
 
-const submitForm = () => {
-  if (validateForm()) {
+const loading = ref(false); // ✅ loading state
+
+const submitForm = async () => {
+  if (!validateForm()) return;
+
+  loading.value = true; // turned on loading
+  try {
+    await handleRegister(); //we're waiting Firebase
     successMessage.value = '✅ Registration successful!';
-    setTimeout(() => {
-      successMessage.value = '';
-    }, 3000);
+  } catch (error) {
+    console.error("Registration error:", error);
+  } finally {
+    loading.value = false; // turned off loading
   }
 };
+
 </script>
 
 <template>
@@ -79,42 +105,42 @@ const submitForm = () => {
     <section class="banner">
       <img src="/signup-illustration.jpg" alt="Register banner" />
       <div class="overlay"></div>
-      <h1 class="banner-text">Join Us Today</h1>
+      <h1 class="banner-text">{{ t('registerPage.banner') }}</h1>
     </section>
 
     <!-- Form Section -->
     <section class="form-section">
       <div class="form-container">
 
-        <h2>Register</h2>
+        <h2>{{ t('registerPage.title') }}</h2>
 
         <form class="register-form" @submit.prevent="submitForm">
 
           <!-- First & Last Name -->
           <div class="form-row">
             <div class="form-group" :class="{ error: errors.firstName }">
-              <label>First Name</label>
-              <input v-model="form.firstName" type="text" placeholder="First Name" />
+              <label>{{ t('registerPage.first_name') }}</label>
+              <input v-model="form.firstName" type="text" :placeholder="t('registerPage.first_name_placeholder')" />
               <small v-if="errors.firstName">{{ errors.firstName }}</small>
             </div>
 
             <div class="form-group" :class="{ error: errors.lastName }">
-              <label>Last Name</label>
-              <input v-model="form.lastName" type="text" placeholder="Last Name" />
+              <label>{{ t('registerPage.last_name') }}</label>
+              <input v-model="form.lastName" type="text" :placeholder="t('registerPage.last_name_placeholder')" />
               <small v-if="errors.lastName">{{ errors.lastName }}</small>
             </div>
           </div>
 
           <!-- Email -->
           <div class="form-group" :class="{ error: errors.email }">
-            <label>Email</label>
-            <input v-model="form.email" type="email" placeholder="Email" />
+            <label>{{ t('registerPage.email') }}</label>
+            <input v-model="form.email" type="email" :placeholder="t('registerPage.email_placeholder')" />
             <small v-if="errors.email">{{ errors.email }}</small>
           </div>
 
           <!-- Phone -->
           <div class="form-group phone-group" :class="{ error: errors.phone }">
-            <label>Phone</label>
+            <label>{{ t('registerPage.phone') }}</label>
             <div class="phone-input">
               <select v-model="form.countryCode">
                 <option value="+374">🇦🇲 +374</option>
@@ -122,89 +148,47 @@ const submitForm = () => {
                 <option value="+1">🇺🇸 +1</option>
                 <option value="+44">🇬🇧 +44</option>
               </select>
-              <input v-model="form.phone" type="tel" placeholder="Phone number" />
+              <input v-model="form.phone" type="tel" :placeholder="t('registerPage.phone_placeholder')" />
             </div>
             <small v-if="errors.phone">{{ errors.phone }}</small>
           </div>
 
-         
           <!-- Password + Confirm Password -->
-<div class="form-row">
-  <div class="form-group" :class="{ error: errors.password }">
-    <label>Password</label>
-    <div class="code-input">
-      <input
-        v-model="form.password"
-        :type="showPassword ? 'text' : 'password'"
-        placeholder="Enter password"
-      />
-      <button type="button" @click="showPassword = !showPassword" class="show-btn">
-  <img
-    v-if="showPassword"
-    src="/eye-open.svg"
-    alt="Hide"
-  />
-  <img
-    v-else
-    src="/eye-closed.svg"
-    alt="Show"
-  />
-</button>
+          <div class="form-row">
+            <div class="form-group" :class="{ error: errors.password }">
+              <label>{{ t('registerPage.password') }}</label>
+              <div class="code-input">
+                <input v-model="form.password" :type="showPassword ? 'text' : 'password'" :placeholder="t('registerPage.password_placeholder')" />
+                <button type="button" @click="showPassword = !showPassword" class="show-btn">
+                  <img v-if="showPassword" src="/eye-open.svg" alt="Hide" />
+                  <img v-else src="/eye-closed.svg" alt="Show" />
+                </button>
+              </div>
+              <small v-if="errors.password">{{ errors.password }}</small>
+            </div>
 
-    </div>
-    <small v-if="errors.password">{{ errors.password }}</small>
-  </div>
-
-  <div class="form-group" :class="{ error: errors.confirmPassword }">
-    <label>Confirm Password</label>
-    <div class="code-input">
-      <input
-        v-model="form.confirmPassword"
-        :type="showConfirmPassword ? 'text' : 'password'"
-        placeholder="Repeat password"
-      />
-     <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="show-btn">
-  <img
-    v-if="showConfirmPassword"
-    src="/eye-open.svg"
-    alt="Hide"
-  />
-  <img
-    v-else
-    src="/eye-closed.svg"
-    alt="Show"
-  />
-</button>
-
-    </div>
-    <small v-if="errors.confirmPassword">{{ errors.confirmPassword }}</small>
-  </div>
-</div>
-
+            <div class="form-group" :class="{ error: errors.confirmPassword }">
+              <label>{{ t('registerPage.confirm_password') }}</label>
+              <div class="code-input">
+                <input v-model="form.confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" :placeholder="t('registerPage.confirm_password_placeholder')" />
+                <button type="button" @click="showConfirmPassword = !showConfirmPassword" class="show-btn">
+                  <img v-if="showConfirmPassword" src="/eye-open.svg" alt="Hide" />
+                  <img v-else src="/eye-closed.svg" alt="Show" />
+                </button>
+              </div>
+              <small v-if="errors.confirmPassword">{{ errors.confirmPassword }}</small>
+            </div>
+          </div>
 
           <!-- Confirmation Code -->
           <div class="form-group" :class="{ error: errors.confirmCode }">
-            <label>Confirmation Code</label>
+            <label>{{ t('registerPage.confirm_code') }}</label>
             <div class="code-input">
-              <input
-                v-model="form.confirmCode"
-                :type="showCode ? 'text' : 'password'"
-                placeholder="Enter code"
-              />
-             <button type="button" @click="showCode = !showCode" class="show-btn">
-  <img
-    v-if="showCode"
-    src="/eye-open.svg"
-    alt="Hide"
-  />
-  <img
-    v-else
-    src="/eye-closed.svg"
-    alt="Show"
-  />
-</button>
-
-
+              <input v-model="form.confirmCode" :type="showCode ? 'text' : 'password'" :placeholder="t('registerPage.confirm_code_placeholder')" />
+              <button type="button" @click="showCode = !showCode" class="show-btn">
+                <img v-if="showCode" src="/eye-open.svg" alt="Hide" />
+                <img v-else src="/eye-closed.svg" alt="Show" />
+              </button>
               <span class="generated-code">{{ sentCode }}</span>
               <button type="button" @click="generateCode" class="refresh-btn">🔄</button>
             </div>
@@ -214,7 +198,7 @@ const submitForm = () => {
           <!-- Terms Checkbox -->
           <div class="form-check" :class="{ error: errors.agree }">
             <input type="checkbox" id="agree" v-model="form.agree" />
-            <label for="agree">I agree to the terms of use</label>
+            <label for="agree">{{ t('registerPage.agree_terms') }}</label>
           </div>
           <small v-if="errors.agree">{{ errors.agree }}</small>
 
@@ -222,18 +206,21 @@ const submitForm = () => {
           <div class="social-buttons">
             <a href="#" class="google-btn">
               <img src="/google.svg" alt="Google" />
-              <span>Continue with Google</span>
+              <span>{{ t('registerPage.continue_google') }}</span>
             </a>
             <a href="#" class="facebook-btn">
               <img src="/facebook-icon.svg" alt="Facebook" />
-              <span>Continue with Facebook</span>
+              <span>{{ t('registerPage.continue_facebook') }}</span>
             </a>
           </div>
 
-          <!-- Action Buttons -->
+          <!-- Form Actions -->
           <div class="action-buttons">
-            <button type="button" class="close-btn">Close</button>
-            <button type="submit" class="continue-btn">Continue</button>
+            <button type="button" class="close-btn">{{ t('registerPage.close') }}</button>
+            <button type="submit" class="continue-btn" :disabled="loading">
+              <span v-if="loading">{{ t('registerPage.loading') }}</span>
+              <span v-else>{{ t('registerPage.continue') }}</span>
+            </button>
           </div>
 
           <!-- Success Message -->
@@ -243,6 +230,7 @@ const submitForm = () => {
     </section>
   </div>
 </template>
+
 
 
 <style scoped>
@@ -470,6 +458,10 @@ small {
     border-radius:6px; 
     cursor:pointer; 
   }
+.continue-btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
 .success-msg { 
   text-align:center; 
