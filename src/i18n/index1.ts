@@ -38,6 +38,7 @@ export function setupI18n() {
 
 export function setLocale(lang: string) {
   if (!Object.keys(messages).includes(lang)) return;
-  i18n.global.locale.value = lang;
+  i18n.global.locale.value = lang as 'en' | 'ru' | 'am'
+
   localStorage.setItem('locale', lang);
 }
